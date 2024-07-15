@@ -1,3 +1,11 @@
+
+#tiled download
+https://github.com/mapeditor/tiled/releases
+
+
+##问题集
+为什么 width/height 设定后会变成全屏等比例缩放了？
+
 # Phaser Webpack Template
 
 This is a Phaser 3 project template that uses webpack for bundling. It supports hot-reloading for quick development workflow and includes scripts to generate production-ready builds.

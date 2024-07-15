@@ -8,10 +8,19 @@ import { Preloader } from './scenes/Preloader';
 //  https://newdocs.phaser.io/docs/3.70.0/Phaser.Types.Core.GameConfig
 const config = {
     type: Phaser.AUTO,
-    width: 1024,
-    height: 768,
+    width: 896,
+    height: 448,
     parent: 'game-container',
     backgroundColor: '#028af8',
+    physics:{
+        default:'matter',
+        matter:{
+            gravity:{
+                y:0.8
+            },
+            debug:true
+        }
+    },
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH

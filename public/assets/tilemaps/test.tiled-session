@@ -1,0 +1,50 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "kenney_simple_platformer.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "test.tmx": {
+            "scale": 0.9,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 373.33333333333326,
+                "y": 157.77777777777777
+            }
+        },
+        "test.tmx#kenney_simple_platformer": {
+            "scaleInDock": 0.75,
+            "scaleInEditor": 1
+        }
+    },
+    "last.exportedFilePath": "/Users/lichenggang/workspace/games/template-webpack/public/assets/tilemaps",
+    "last.imagePath": "/Users/lichenggang/workspace/games/template-webpack/public/assets/tilesets",
+    "map.height": 7,
+    "map.lastUsedExportFilter": "All Files (*)",
+    "map.lastUsedFormat": "tmx",
+    "map.layerDataFormat": null,
+    "map.tileHeight": 64,
+    "map.tileWidth": 64,
+    "map.width": 14,
+    "openFiles": [
+    ],
+    "project": "test.tiled-project",
+    "property.type": "bool",
+    "recentFiles": [
+        "kenney_simple_platformer.tsx",
+        "test.tmx"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 64,
+        "width": 64
+    }
+}
