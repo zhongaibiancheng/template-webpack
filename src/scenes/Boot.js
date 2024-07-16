@@ -27,6 +27,9 @@ export class Boot extends Scene {
         this._addKeys();
         const backgroundImage = this.add.image(0, 0, 'background').setOrigin(0, 0);
         backgroundImage.setScale(2, 0.8);
+
+        const coinText = this.add.text(10,10,'金币:0',{ fontFamily: 'Arial', fontSize: 14, color: '#00ff00' });
+        
         const map = this.make.tilemap({ key: 'map' });
         const tileset = map.addTilesetImage('kenney_simple_platformer', 'tiles');
         // 创建静态图层
@@ -98,6 +101,7 @@ export class Boot extends Scene {
             console.error('ObjectsLayer not found in tilemap');
         }
 
+        let coin_count =0;
         // 监听碰撞事件
         this.matter.world.on('collisionstart', (event, bodyA, bodyB) => {
             const pairs = event.pairs;
@@ -132,6 +136,9 @@ export class Boot extends Scene {
                                 alpha: { value: 0, duration: 100, ease: 'Power1' },
                                 onComplete: this.destroyTile.bind(this, tile)
                             });
+                            coin_count++;
+
+                            coinText.setText("金币:"+coin_count);
                         }
                     }
                 }
