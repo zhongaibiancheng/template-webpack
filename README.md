@@ -6,6 +6,13 @@ https://github.com/mapeditor/tiled/releases
 ##问题集
 为什么 width/height 设定后会变成全屏等比例缩放了？
 
+tile 使用方法需要加强
+
+matter引擎的 onfloor 判断需要学习
+
+matter 中 collision shape 需要学习->高度不会调整
+
+
 # Phaser Webpack Template
 
 This is a Phaser 3 project template that uses webpack for bundling. It supports hot-reloading for quick development workflow and includes scripts to generate production-ready builds.

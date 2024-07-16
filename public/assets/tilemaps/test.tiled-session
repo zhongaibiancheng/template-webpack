@@ -11,6 +11,9 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "level1.tmx#kenney_simple_platformer": {
+            "scaleInEditor": 1
+        },
         "test.tmx": {
             "scale": 0.9,
             "selectedLayer": 0,
