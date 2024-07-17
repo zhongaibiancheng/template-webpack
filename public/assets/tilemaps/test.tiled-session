@@ -3,15 +3,40 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "levels/level1/level1.tmx",
     "expandedProjectPaths": [
     ],
+    "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "kenney_simple_platformer.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "level1.tmx": {
+            "expandedGroupLayers": [
+                8
+            ],
+            "scale": 1.06,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 417.9245283018867,
+                "y": 162.2641509433962
+            }
+        },
         "level1.tmx#kenney_simple_platformer": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "levels/level1/level1.tmx": {
+            "scale": 0.46,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 606.5217391304348,
+                "y": 128.26086956521738
+            }
+        },
+        "levels/level1/level1.tmx#kenney_simple_platformer": {
+            "scaleInDock": 1,
             "scaleInEditor": 1
         },
         "test.tmx": {
@@ -27,21 +52,25 @@
             "scaleInEditor": 1
         }
     },
-    "last.exportedFilePath": "/Users/lichenggang/workspace/games/template-webpack/public/assets/tilemaps",
+    "last.exportedFilePath": "/Users/lichenggang/workspace/games/template-webpack/public/assets/tilemaps/levels/level1",
     "last.imagePath": "/Users/lichenggang/workspace/games/template-webpack/public/assets/tilesets",
-    "map.height": 7,
+    "lastUsedTilesetExportFilter": "All Files (*)",
+    "map.height": 10,
     "map.lastUsedExportFilter": "All Files (*)",
     "map.lastUsedFormat": "tmx",
     "map.layerDataFormat": null,
     "map.tileHeight": 64,
     "map.tileWidth": 64,
-    "map.width": 14,
+    "map.width": 20,
     "openFiles": [
+        "levels/level1/level1.tmx"
     ],
     "project": "test.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "levels/level1/level1.tmx",
         "kenney_simple_platformer.tsx",
+        "level1.tmx",
         "test.tmx"
     ],
     "tileset.embedInMap": true,

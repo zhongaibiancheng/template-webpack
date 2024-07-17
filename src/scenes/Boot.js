@@ -5,16 +5,106 @@ export class Boot extends Scene {
         super('Boot');
     }
 
+    _preload() {
+        this.load.image('left-cap', 'assets/images/health_bar/barHorizontal_green_left.png')
+        this.load.image('middle', 'assets/images/health_bar/barHorizontal_green_mid.png')
+        this.load.image('right-cap', 'assets/images/health_bar/barHorizontal_green_right.png')
+
+        this.load.image('left-cap-shadow', 'assets/images/health_bar/barHorizontal_shadow_left.png')
+        this.load.image('middle-shadow', 'assets/images/health_bar/barHorizontal_shadow_mid.png')
+        this.load.image('right-cap-shadow', 'assets/images/health_bar/barHorizontal_shadow_right.png')
+    }
     preload() {
+        this._preload();
+
         this.load.image('background', 'assets/images/background.png');
         this.load.image("spike", "assets/images/spike.png");
         this.load.atlas('player', 'assets/images/kenney_player.png', 'assets/images/kenney_player_atlas.json');
         this.load.image('tiles', 'assets/tilesets/platformPack_tilesheet.png');
         // Load the export Tiled JSON
-        this.load.tilemapTiledJSON('map', 'assets/tilemaps/level1.json');
+        this.load.tilemapTiledJSON('map', 'assets/tilemaps/levels/level1/level1.json');
+
+        this.load.image('red_ball', 'assets/images/bomb.png');
+        this.load.setPath('assets/audio/SoundEffects');
+
+        this.load.audio('walk1', 'steps1.mp3');
+        this.load.audio('walk2', 'steps2.mp3');
+        this.load.audio('star', 'pickup.wav');
+
+
 
     }
 
+    init() {
+        this.fullWidth = 300;
+        this.health_value = 1;
+    }
+    _create_bomb(map) {
+        const getRandomInt = (min, max) => {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        const x = getRandomInt(30, map.widthInPixels)
+        const y = getRandomInt(20, 50)
+        const circ = this.matter.add.image(x, y, 'red_ball');
+        circ.setScale(0.1);
+        //  Change the body to a Circle with a radius of 48px
+        circ.setBody({
+            type: 'circle',
+            radius: 15
+        });
+
+        //  Just make the body move around and bounce
+        circ.setVelocity(6, 3);
+        circ.setAngularVelocity(0.5);
+        circ.setBounce(0.1);
+        circ.setFriction(0, 0, 0);
+
+        circ.setDepth(100);
+    }
+    _create_health_bar() {
+        const y = 24
+        const x = 60
+
+        // background shadow
+        const leftShadowCap = this.add.image(x, y, 'left-cap-shadow')
+            .setOrigin(0, 0.5)
+
+        const middleShaddowCap = this.add.image(leftShadowCap.x + leftShadowCap.width, y, 'middle-shadow')
+            .setOrigin(0, 0.5)
+        middleShaddowCap.displayWidth = this.fullWidth
+
+        this.add.image(middleShaddowCap.x + middleShaddowCap.displayWidth, y, 'right-cap-shadow')
+            .setOrigin(0, 0.5)
+
+        // health bar
+        this.leftCap = this.add.image(x, y, 'left-cap')
+            .setOrigin(0, 0.5)
+
+        this.middle = this.add.image(this.leftCap.x + this.leftCap.width, y, 'middle')
+            .setOrigin(0, 0.5)
+
+        this.rightCap = this.add.image(this.middle.x + this.middle.displayWidth, y, 'right-cap')
+            .setOrigin(0, 0.5)
+
+        this.setMeterPercentageAnimated(this.health_value);
+    }
+    setMeterPercentageAnimated(percent = 1, duration = 1000) {
+        const width = this.fullWidth * percent
+
+        this.tweens.add({
+            targets: this.middle,
+            displayWidth: width,
+            duration,
+            ease: Phaser.Math.Easing.Sine.Out,
+            onUpdate: () => {
+                this.rightCap.x = this.middle.x + this.middle.displayWidth
+
+                this.leftCap.visible = this.middle.displayWidth > 0
+                this.middle.visible = this.middle.displayWidth > 0
+                this.rightCap.visible = this.middle.displayWidth > 0
+            }
+        })
+    }
     _addKeys() {
         this.leftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         this.rightKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
@@ -24,12 +114,22 @@ export class Boot extends Scene {
     }
 
     create() {
+        this.init();
+
+
         this._addKeys();
+
+        this.walk1 = this.sound.add("walk1");
+        this.walk2 = this.sound.add("walk2");
+        this.star = this.sound.add("star");
+
+        this.sound.pauseOnBlur = true;
+
         const backgroundImage = this.add.image(0, 0, 'background').setOrigin(0, 0);
         backgroundImage.setScale(2, 0.8);
 
-        const coinText = this.add.text(10,10,'金币:0',{ fontFamily: 'Arial', fontSize: 14, color: '#00ff00' });
-        
+        const coinText = this.add.text(10, 24, '金币:0', { fontFamily: 'Arial', fontSize: 14, color: '#00ff00' }).setOrigin(0, 0.5);
+
         const map = this.make.tilemap({ key: 'map' });
         const tileset = map.addTilesetImage('kenney_simple_platformer', 'tiles');
         // 创建静态图层
@@ -41,8 +141,6 @@ export class Boot extends Scene {
         const coins = map.createLayer("Coins", tileset, 0, 0);
         coins.setCollisionByProperty({ collides: true });
         this.matter.world.convertTilemapLayer(coins, { label: 'coin' });
-
-        this.matter.world.setBounds();
 
         // 为玩家角色添加传感器来检测是否在地面上
         const { Body, Bodies } = Phaser.Physics.Matter.Matter;
@@ -83,25 +181,25 @@ export class Boot extends Scene {
 
         const objectsGroup = this.add.group();
         // 获取对象层
-        const objectsLayer = map.getObjectLayer('Spikes');
-        if (objectsLayer) {
-            objectsLayer.objects.forEach(object => {
-                const { x, y, width, height } = object;
+        // const objectsLayer = map.getObjectLayer('Spikes');
+        // if (objectsLayer) {
+        //     objectsLayer.objects.forEach(object => {
+        //         const { x, y, width, height } = object;
 
-                // 创建一个 Matter.js 物体
-                const matterObject = this.matter.add.rectangle(x + width / 2, y - height / 2, width, height, { isStatic: true });
-                matterObject.label = "spike";
+        //         // 创建一个 Matter.js 物体
+        //         const matterObject = this.matter.add.rectangle(x + width / 2, y - height / 2, width, height, { isStatic: true });
+        //         matterObject.label = "spike";
 
-                // 创建一个对应的游戏对象（sprite 或 image）并添加到 Group 中
-                const gameObject = this.add.image(x + width / 2, y - height / 2, 'spike');
-                objectsGroup.add(gameObject);
-                gameObject.setData('matterBody', matterObject); // 将 Matter.js 物体关联到游戏对象
-            });
-        } else {
-            console.error('ObjectsLayer not found in tilemap');
-        }
+        //         // 创建一个对应的游戏对象（sprite 或 image）并添加到 Group 中
+        //         const gameObject = this.add.image(x + width / 2, y - height / 2, 'spike');
+        //         objectsGroup.add(gameObject);
+        //         gameObject.setData('matterBody', matterObject); // 将 Matter.js 物体关联到游戏对象
+        //     });
+        // } else {
+        //     console.error('ObjectsLayer not found in tilemap');
+        // }
 
-        let coin_count =0;
+        let coin_count = 0;
         // 监听碰撞事件
         this.matter.world.on('collisionstart', (event, bodyA, bodyB) => {
             const pairs = event.pairs;
@@ -118,7 +216,9 @@ export class Boot extends Scene {
                     } else {
                         this.player.isOnGround = false;
                         if (target === 'spike') {
-                            this.playerHit(this.player, target);
+                            // this.playerHit(this.player, target);
+                            this.scene.start("GameOver");
+
                         } else if (target === 'coin') {
                             const tileWrapper = target_body.gameObject;
                             const tile = tileWrapper.tile;
@@ -129,6 +229,7 @@ export class Boot extends Scene {
                             }
                             tile.properties.isBeingDestroyed = true;
 
+                            this.star.play();
                             // Since we are using ES5 here, the local tile variable isn't scoped to this block -
                             // bind to the rescue.
                             this.tweens.add({
@@ -138,67 +239,83 @@ export class Boot extends Scene {
                             });
                             coin_count++;
 
-                            coinText.setText("金币:"+coin_count);
+                            coinText.setText("金币:" + coin_count);
                         }
                     }
                 }
             }
-
-
         });
+        this._create_health_bar();
+
+        // this.create_bomb_id = setInterval(() => {
+            this._create_bomb(map);
+        // }, 2000);
+
+    this.matter.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels); // 设置边界宽度为1600，高度为600
+    this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels); // 设置相机边界与物理世界边界一致
+    this.cameras.main.startFollow(this.player, true);
+    this.cameras.main.setZoom(0.6);
+
+}
+destroyTile(tile) {
+    const layer = tile.tilemapLayer;
+    layer.removeTileAt(tile.x, tile.y);
+    tile.physics.matterBody.destroy();
+}
+
+playerHit(player, spike) {
+    this.health_value -= 0.1;
+    if (this.health_value < 0) {
+        this.health_value = 0;
     }
-    destroyTile(tile) {
-        const layer = tile.tilemapLayer;
-        layer.removeTileAt(tile.x, tile.y);
-        tile.physics.matterBody.destroy();
+    this.setMeterPercentageAnimated(this.health_value);
+    // Set velocity back to 0
+    player.setVelocity(0, 0);
+    // Put the player back in its original position
+    player.setX(50);
+    player.setY(0);
+    // Use the default `idle` animation
+    player.play('idle', true);
+    // Set the visibility to 0 i.e. hide the player
+    player.setAlpha(0);
+    // Add a tween that 'blinks' until the player is gradually visible
+    let tw = this.tweens.add({
+        targets: player,
+        alpha: 1,
+        duration: 200,
+        ease: 'Linear',
+        repeat: 3,
+    });
+}
+update() {
+    if (this.leftKey.isDown) {
+        this.player.setVelocityX(-5);
+        if (this.player.isOnGround) {
+            this.player.play('walk', true);
+            this.walk1.play();
+        }
+    } else if (this.rightKey.isDown) {
+        this.player.setVelocityX(5);
+        if (this.player.isOnGround) {
+            this.player.play('walk', true);
+            this.walk1.play();
+        }
+    } else {
+        this.player.setVelocityX(0);
+        if (this.player.isOnGround) {
+            this.player.play('idle', true);
+        }
+    }
+    if ((this.jumpKey.isDown || this.upKey.isDown) && this.player.isOnGround) {
+        this.player.setVelocityY(-20);
+        this.player.play('jump', true);
+        this.player.isOnGround = false;
     }
 
-    playerHit(player, spike) {
-        // Set velocity back to 0
-        player.setVelocity(0, 0);
-        // Put the player back in its original position
-        player.setX(50);
-        player.setY(0);
-        // Use the default `idle` animation
-        player.play('idle', true);
-        // Set the visibility to 0 i.e. hide the player
-        player.setAlpha(0);
-        // Add a tween that 'blinks' until the player is gradually visible
-        let tw = this.tweens.add({
-            targets: player,
-            alpha: 1,
-            duration: 200,
-            ease: 'Linear',
-            repeat: 3,
-        });
+    if (this.player.body.velocity.x > 0) {
+        this.player.setFlipX(false);
+    } else if (this.player.body.velocity.x < 0) {
+        this.player.setFlipX(true);
     }
-    update() {
-        if (this.leftKey.isDown) {
-            this.player.setVelocityX(-5);
-            if (this.player.isOnGround) {
-                this.player.play('walk', true);
-            }
-        } else if (this.rightKey.isDown) {
-            this.player.setVelocityX(5);
-            if (this.player.isOnGround) {
-                this.player.play('walk', true);
-            }
-        } else {
-            this.player.setVelocityX(0);
-            if (this.player.isOnGround) {
-                this.player.play('idle', true);
-            }
-        }
-        if ((this.jumpKey.isDown || this.upKey.isDown) && this.player.isOnGround) {
-            this.player.setVelocityY(-20);
-            this.player.play('jump', true);
-            this.player.isOnGround = false;
-        }
-
-        if (this.player.body.velocity.x > 0) {
-            this.player.setFlipX(false);
-        } else if (this.player.body.velocity.x < 0) {
-            this.player.setFlipX(true);
-        }
-    }
+}
 }
