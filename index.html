@@ -7,11 +7,27 @@
     <link rel="stylesheet" href="./style.css">
     <title>RPG</title>
 </head>
-
+<script>
+	function click1(){
+		console.log("click submit button !!!")
+		var code = "jump()";
+		console.log(code);
+		eval(code);
+	}
+	</script>
 <body>
     <div id="app">
         <div id="game-container"></div>
+        <div id="code-container">
+        	<textarea class="code-textarea">
+        		
+        	</textarea>
+        	<div class="code-button-container">
+        		<button onclick="click1()">提交</button>
+        	</div>
+        </div>
     </div>
     <!-- <script type="module" src="src/main.js"></script> -->
 </body>
+
 </html>

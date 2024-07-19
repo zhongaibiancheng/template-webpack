@@ -5,36 +5,6 @@ export class Boot extends Scene {
         super('Boot');
     }
 
-    _preload() {
-        this.load.image('left-cap', 'assets/images/health_bar/barHorizontal_green_left.png')
-        this.load.image('middle', 'assets/images/health_bar/barHorizontal_green_mid.png')
-        this.load.image('right-cap', 'assets/images/health_bar/barHorizontal_green_right.png')
-
-        this.load.image('left-cap-shadow', 'assets/images/health_bar/barHorizontal_shadow_left.png')
-        this.load.image('middle-shadow', 'assets/images/health_bar/barHorizontal_shadow_mid.png')
-        this.load.image('right-cap-shadow', 'assets/images/health_bar/barHorizontal_shadow_right.png')
-    }
-    preload() {
-        this._preload();
-
-        this.load.image('background', 'assets/images/background.png');
-        this.load.image("spike", "assets/images/spike.png");
-        this.load.atlas('player', 'assets/images/kenney_player.png', 'assets/images/kenney_player_atlas.json');
-        this.load.image('tiles', 'assets/tilesets/platformPack_tilesheet.png');
-        // Load the export Tiled JSON
-        this.load.tilemapTiledJSON('map', 'assets/tilemaps/levels/level1/level1.json');
-
-        this.load.image('red_ball', 'assets/images/bomb.png');
-        this.load.setPath('assets/audio/SoundEffects');
-
-        this.load.audio('walk1', 'steps1.mp3');
-        this.load.audio('walk2', 'steps2.mp3');
-        this.load.audio('star', 'pickup.wav');
-
-
-
-    }
-
     init() {
         this.fullWidth = 300;
         this.health_value = 1;
@@ -115,7 +85,6 @@ export class Boot extends Scene {
 
     create() {
         this.init();
-
 
         this._addKeys();
 
@@ -199,6 +168,18 @@ export class Boot extends Scene {
         //     console.error('ObjectsLayer not found in tilemap');
         // }
 
+        const objectsLayer = map.getObjectLayer('Triggers');
+        if (objectsLayer) {
+            objectsLayer.objects.forEach(object => {
+                const { x, y, width, height } = object;
+
+                // 创建一个 Matter.js 物体
+                const matterObject = this.matter.add.rectangle(x + width / 2, y+height/2.0, width, height, { isStatic: true });
+                matterObject.label = "trigger";
+            });
+        } else {
+            console.error('ObjectsLayer not found in tilemap');
+        }
         let coin_count = 0;
         // 监听碰撞事件
         this.matter.world.on('collisionstart', (event, bodyA, bodyB) => {
@@ -218,6 +199,10 @@ export class Boot extends Scene {
                         if (target === 'spike') {
                             // this.playerHit(this.player, target);
                             this.scene.start("GameOver");
+
+                        } else if (target === 'trigger') {
+                            console.log("skip into trigger zone")
+                            this.scene.start("Quiz");
 
                         } else if (target === 'coin') {
                             const tileWrapper = target_body.gameObject;
@@ -248,74 +233,74 @@ export class Boot extends Scene {
         this._create_health_bar();
 
         // this.create_bomb_id = setInterval(() => {
-            this._create_bomb(map);
+        this._create_bomb(map);
         // }, 2000);
 
-    this.matter.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels); // 设置边界宽度为1600，高度为600
-    this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels); // 设置相机边界与物理世界边界一致
-    this.cameras.main.startFollow(this.player, true);
-    this.cameras.main.setZoom(0.6);
+        this.matter.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels); // 设置边界宽度为1600，高度为600
+        this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels); // 设置相机边界与物理世界边界一致
+        this.cameras.main.startFollow(this.player, true);
+        this.cameras.main.setZoom(0.6);
 
-}
-destroyTile(tile) {
-    const layer = tile.tilemapLayer;
-    layer.removeTileAt(tile.x, tile.y);
-    tile.physics.matterBody.destroy();
-}
-
-playerHit(player, spike) {
-    this.health_value -= 0.1;
-    if (this.health_value < 0) {
-        this.health_value = 0;
     }
-    this.setMeterPercentageAnimated(this.health_value);
-    // Set velocity back to 0
-    player.setVelocity(0, 0);
-    // Put the player back in its original position
-    player.setX(50);
-    player.setY(0);
-    // Use the default `idle` animation
-    player.play('idle', true);
-    // Set the visibility to 0 i.e. hide the player
-    player.setAlpha(0);
-    // Add a tween that 'blinks' until the player is gradually visible
-    let tw = this.tweens.add({
-        targets: player,
-        alpha: 1,
-        duration: 200,
-        ease: 'Linear',
-        repeat: 3,
-    });
-}
-update() {
-    if (this.leftKey.isDown) {
-        this.player.setVelocityX(-5);
-        if (this.player.isOnGround) {
-            this.player.play('walk', true);
-            this.walk1.play();
-        }
-    } else if (this.rightKey.isDown) {
-        this.player.setVelocityX(5);
-        if (this.player.isOnGround) {
-            this.player.play('walk', true);
-            this.walk1.play();
-        }
-    } else {
-        this.player.setVelocityX(0);
-        if (this.player.isOnGround) {
-            this.player.play('idle', true);
-        }
-    }
-    if ((this.jumpKey.isDown || this.upKey.isDown) && this.player.isOnGround) {
-        this.player.setVelocityY(-20);
-        this.player.play('jump', true);
-        this.player.isOnGround = false;
+    destroyTile(tile) {
+        const layer = tile.tilemapLayer;
+        layer.removeTileAt(tile.x, tile.y);
+        tile.physics.matterBody.destroy();
     }
 
-    if (this.player.body.velocity.x > 0) {
-        this.player.setFlipX(false);
-    } else if (this.player.body.velocity.x < 0) {
-        this.player.setFlipX(true);
+    playerHit(player, spike) {
+        this.health_value -= 0.1;
+        if (this.health_value < 0) {
+            this.health_value = 0;
+        }
+        this.setMeterPercentageAnimated(this.health_value);
+        // Set velocity back to 0
+        player.setVelocity(0, 0);
+        // Put the player back in its original position
+        player.setX(50);
+        player.setY(0);
+        // Use the default `idle` animation
+        player.play('idle', true);
+        // Set the visibility to 0 i.e. hide the player
+        player.setAlpha(0);
+        // Add a tween that 'blinks' until the player is gradually visible
+        let tw = this.tweens.add({
+            targets: player,
+            alpha: 1,
+            duration: 200,
+            ease: 'Linear',
+            repeat: 3,
+        });
     }
-}
+    update() {
+        if (this.leftKey.isDown) {
+            this.player.setVelocityX(-5);
+            if (this.player.isOnGround) {
+                this.player.play('walk', true);
+                this.walk1.play();
+            }
+        } else if (this.rightKey.isDown) {
+            this.player.setVelocityX(5);
+            if (this.player.isOnGround) {
+                this.player.play('walk', true);
+                this.walk1.play();
+            }
+        } else {
+            this.player.setVelocityX(0);
+            if (this.player.isOnGround) {
+                this.player.play('idle', true);
+            }
+        }
+        if ((this.jumpKey.isDown || this.upKey.isDown) && this.player.isOnGround) {
+            this.player.setVelocityY(-20);
+            this.player.play('jump', true);
+            this.player.isOnGround = false;
+        }
+
+        if (this.player.body.velocity.x > 0) {
+            this.player.setFlipX(false);
+        } else if (this.player.body.velocity.x < 0) {
+            this.player.setFlipX(true);
+        }
+    }
 }
